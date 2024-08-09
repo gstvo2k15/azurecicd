@@ -26,4 +26,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ansible
 
       - name: Execute Ansible playbook
-        run: ansible-playbook playbook.yml --extra-vars "beta_secret=${{ steps.get-secrets.outputs.aznpadevkey }}"
+        run: ansible-playbook playbook.yml -vvv --extra-vars "beta_secret=${{ steps.get-secrets.outputs.aznpadevkey }}"
