@@ -27,4 +27,4 @@ jobs:
         run: sudo apt-get update -yqq && sudo apt-get install -yqq ansible
 
       - name: Execute Ansible playbook
-        run: ansible-playbook playbook.yml -vvv --extra-vars "beta_secret=${{ env.SECRET_VALUE }}"
+        run: ansible-playbook playbook.yml -v --extra-vars "beta_secret=${{ env.SECRET_VALUE }}"
