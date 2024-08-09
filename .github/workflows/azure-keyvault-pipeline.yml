@@ -21,7 +21,7 @@ jobs:
           echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
 
       - name: Install Ansible
-        run: sudo apt-get update && sudo apt-get install -y ansible
+        run: sudo apt-get update -yqq && sudo apt-get install -yqq ansible
 
       - name: Execute Ansible playbook
         run: ansible-playbook playbook.yml -vvv --extra-vars "beta_secret=${{ env.SECRET_VALUE }}"
