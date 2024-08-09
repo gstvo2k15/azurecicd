@@ -16,14 +16,12 @@ jobs:
 
       - name: Get secrets from Azure Key Vault
         id: get-secrets
-        uses: Azure/keyvault-secrets@v1
-        with:
-          keyvault: ${{ secrets.AZURE_KEYVAULT_NAME }}
-          secrets: |
-            aznpadevkey
+        run: |
+          SECRET_VALUE=$(az keyvault secret show --name aznpadevkey --vault-name ${{ secrets.AZURE_KEYVAULT_NAME }} --query value -o tsv)
+          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
 
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
       - name: Execute Ansible playbook
-        run: ansible-playbook playbook.yml -vvv --extra-vars "beta_secret=${{ steps.get-secrets.outputs.aznpadevkey }}"
+        run: ansible-playbook playbook.yml -vvv --extra-vars "beta_secret=${{ env.SECRET_VALUE }}"
