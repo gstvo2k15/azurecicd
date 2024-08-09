@@ -1,0 +1,29 @@
+name: Azure Key Vault Secrets Example
+
+on: [push]
+
+jobs:
+  fetch-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get secrets from Azure Key Vault
+        id: get-secrets
+        uses: Azure/keyvault-secrets@v1
+        with:
+          keyvault: ${{ secrets.AZURE_KEYVAULT_NAME }}
+          secrets: |
+            aznpadevkey
+
+      - name: Install Ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
+
+      - name: Execute Ansible playbook
+        run: ansible-playbook playbook.yml --extra-vars "beta_secret=${{ steps.get-secrets.outputs.aznpadevkey }}"

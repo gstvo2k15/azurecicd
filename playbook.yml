@@ -1,0 +1,7 @@
+---
+- name: Example Playbook
+  hosts: localhost
+  tasks:
+    - name: Print the secret
+      debug:
+        msg: "The secret value is {{ beta_secret }}"
