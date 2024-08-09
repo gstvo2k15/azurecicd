@@ -17,8 +17,11 @@ jobs:
       - name: Get secrets from Azure Key Vault
         id: get-secrets
         run: |
-          SECRET_VALUE=$(az keyvault secret show --name aznpadevkey --vault-name ${{ secrets.AZURE_KEYVAULT_NAME }} --query value -o tsv)
+          SECRET_VALUE=$(az keyvault secret show --name aznpadevkey --vault-name gstvo2k15labkvault --query value -o tsv)
           echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+
+      - name: Print Secret (for debugging purposes)
+        run: echo "The secret value is ${{ env.SECRET_VALUE }}"
 
       - name: Install Ansible
         run: sudo apt-get update -yqq && sudo apt-get install -yqq ansible
