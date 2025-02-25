@@ -54,3 +54,7 @@ jobs:
 
       - name: Execute Ansible playbook
         run: ansible-playbook playbook.yml -v --extra-vars "beta_secret=${BETA}"
+
+      - name: Print the secret (for debugging)
+        run: |
+          echo "The secret value is ${BETA}"
