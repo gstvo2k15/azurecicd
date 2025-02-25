@@ -20,14 +20,17 @@ jobs:
 
       - name: Get secrets from Azure Key Vault
         id: get-secrets
+        env:
+          AZ_KEYVAULT_NAME: ${{ secrets.AZ_KEYVAULT_NAME }}
+          AZ_VAULT_NAME: ${{ secrets.AZ_VAULT_NAME }}        
         run: |
           # Enable strict mode to catch errors early
           set -euo pipefail
 
           # Retrieve the secret from Azure Key Vault
           SECRET_VALUE=$(az keyvault secret show \
-            --name aznpadevkey \
-            --vault-name gstvo2k15labkvault \
+            --name ${AZ_KEYVAULT_NAME} \
+            --vault-name ${AZ_VAULT_NAME} \
             --query value -o tsv)
 
           # Ensure the secret was successfully retrieved
