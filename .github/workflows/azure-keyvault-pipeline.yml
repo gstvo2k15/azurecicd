@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/actions
 
 jobs:
   fetch-secrets:
@@ -20,17 +21,27 @@ jobs:
       - name: Get secrets from Azure Key Vault
         id: get-secrets
         run: |
-          set -Euoupipefail
-          SECRET_VALUE=$(az keyvault secret show --name aznpadevkey --vault-name gstvo2k15labkvault --query value -o tsv)
+          # Enable strict mode to catch errors early
+          set -euo pipefail
 
+          # Retrieve the secret from Azure Key Vault
+          SECRET_VALUE=$(az keyvault secret show \
+            --name aznpadevkey \
+            --vault-name gstvo2k15labkvault \
+            --query value -o tsv)
+
+          # Ensure the secret was successfully retrieved
           if [[ -z "$SECRET_VALUE" ]]
             then
-              echo "Error: No se obtuvo un valor del Key Vault" >&2
+              echo "Error: No value retrieved from Azure Key Vault" >&2
               exit 1
           fi
 
+          # Mask the secret in GitHub Actions logs
           echo "::add-mask::$SECRET_VALUE"
-          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+
+          # Export the secret as an environment variable for later use
+          echo "BETA=$SECRET_VALUE" >> $GITHUB_ENV
 
       - name: Print Secret (for debugging purposes)
         run: echo "The secret value is set and masked."
@@ -39,4 +50,4 @@ jobs:
         run: sudo apt-get update -yqq && sudo apt-get install -yqq ansible
 
       - name: Execute Ansible playbook
-        run: ansible-playbook playbook.yml -v --extra-vars "beta_secret=${{ env.SECRET_VALUE }}"
+        run: ansible-playbook playbook.yml -v --extra-vars "beta_secret=${BETA}"
