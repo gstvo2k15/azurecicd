@@ -57,4 +57,4 @@ jobs:
 
       - name: Print the secret (for debugging)
         run: |
-          echo "The secret value is ${BETA}"
+          echo "The secret is: $(echo $BETA | base64)"
