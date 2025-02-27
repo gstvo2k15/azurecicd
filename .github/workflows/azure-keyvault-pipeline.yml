@@ -9,6 +9,8 @@ on:
 jobs:
   fetch-secrets:
     runs-on: ubuntu-latest
+    outputs:
+      beta_secret: ${{ steps.export-secret.outputs.BETA }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
@@ -25,6 +27,7 @@ jobs:
           AZ_VAULT_NAME: ${{ secrets.AZ_VAULT_NAME }}
         run: |
           set -euo pipefail
+
           SECRET_VALUE=$(az keyvault secret show \
             --name "${AZ_KEYVAULT_NAME}" \
             --vault-name "${AZ_VAULT_NAME}" \
@@ -34,16 +37,19 @@ jobs:
             echo "Error: No value retrieved from Azure Key Vault" >&2
             exit 1
           fi
-          
+
           echo "::add-mask::$SECRET_VALUE"
           echo "BETA=$SECRET_VALUE" >> $GITHUB_ENV
 
-      - name: Print Secret (for debugging purposes)
-        run: echo "The secret value is set and masked."
+      - name: Export Secret for Next Job
+        id: export-secret
+        run: echo "BETA=${BETA}" >> $GITHUB_ENV
 
   ansible-checks:
     runs-on: ubuntu-latest
     needs: fetch-secrets
+    env:
+      BETA: ${{ needs.fetch-secrets.outputs.beta_secret }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
@@ -53,7 +59,6 @@ jobs:
           set -eEuo pipefail
 
           sudo apt-get update -yqq && sudo apt-get install -yqq python3-venv
-
           python3 -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
