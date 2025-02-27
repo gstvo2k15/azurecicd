@@ -2,6 +2,7 @@
 - name: Example Playbook
   hosts: localhost
   tasks:
-    - name: Print the secret
+    - name: Print secret length instead of value
       ansible.builtin.debug:
-        msg: "The secret value is {{ beta_secret }}"
+        msg: |
+          "The secret has been retrieved and has a length of {{ beta_secret | length }} characters."
