@@ -1,16 +1,16 @@
-# GitHub Actions Pipeline con Azure Key Vault
+# GitHub Actions Pipeline with Azure Key Vault
 
-Este repositorio contiene un ejemplo de cómo configurar un pipeline de GitHub Actions para recuperar secretos desde Azure Key Vault y utilizarlos en la ejecución de un playbook de Ansible.
+This repository contains an example of how to configure a GitHub Actions pipeline to retrieve secrets from Azure Key Vault and use them to run an Ansible playbook.
 
-## Estructura del Repositorio
+## Repository Structure
 
 ```
 .
 ├── .github
-│   └── workflows
-│       └── azure-keyvault-pipeline.yml  # Archivo del pipeline de GitHub Actions
-├── README.md  # Este archivo con la documentación
-└── playbook.yml  # Playbook de Ansible
+│ └── workflows
+│ └── azure-keyvault-pipeline.yml # GitHub Actions pipeline file
+├── README.md # This file with the documentation
+└── playbook.yml # Ansible Playbook
 ```
 
 ## GitHub Actions Workflow:
@@ -28,7 +28,7 @@ Este repositorio contiene un ejemplo de cómo configurar un pipeline de GitHub A
 |--- Execute Ansible playbook
 ```
 
-### Notas Finales
+### Final Notes
 
-- **`azure-keyvault-pipeline.yml`**: Este archivo define el workflow de GitHub Actions y se ubica dentro de `.github/workflows/`.
-- **`playbook.yml`**: Este archivo contiene el playbook de Ansible que se ejecutará en el pipeline. Debes adaptarlo según tus necesidades.
+- **`azure-keyvault-pipeline.yml`**: This file defines the GitHub Actions workflow and is located inside `.github/workflows/`.
+- **`playbook.yml`**: This file contains the Ansible playbook that will be executed in the pipeline. You must adapt it according to your needs.

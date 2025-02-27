@@ -1,4 +1,4 @@
-name: Azure Key Vault Secrets Example
+name: CI/CD Pipeline with Ansible Checks
 
 on:
   push:
@@ -22,39 +22,54 @@ jobs:
         id: get-secrets
         env:
           AZ_KEYVAULT_NAME: ${{ secrets.AZ_KEYVAULT_NAME }}
-          AZ_VAULT_NAME: ${{ secrets.AZ_VAULT_NAME }}        
+          AZ_VAULT_NAME: ${{ secrets.AZ_VAULT_NAME }}
         run: |
-          # Enable strict mode to catch errors early
           set -euo pipefail
-
-          # Retrieve the secret from Azure Key Vault
           SECRET_VALUE=$(az keyvault secret show \
-            --name ${AZ_KEYVAULT_NAME} \
-            --vault-name ${AZ_VAULT_NAME} \
+            --name "${AZ_KEYVAULT_NAME}" \
+            --vault-name "${AZ_VAULT_NAME}" \
             --query value -o tsv)
-
-          # Ensure the secret was successfully retrieved
-          if [[ -z "$SECRET_VALUE" ]]
-            then
-              echo "Error: No value retrieved from Azure Key Vault" >&2
-              exit 1
+          
+          if [[ -z "$SECRET_VALUE" ]]; then
+            echo "Error: No value retrieved from Azure Key Vault" >&2
+            exit 1
           fi
-
-          # Mask the secret in GitHub Actions logs
+          
           echo "::add-mask::$SECRET_VALUE"
-
-          # Export the secret as an environment variable for later use
           echo "BETA=$SECRET_VALUE" >> $GITHUB_ENV
 
       - name: Print Secret (for debugging purposes)
         run: echo "The secret value is set and masked."
 
-      - name: Install Ansible
-        run: sudo apt-get update -yqq && sudo apt-get install -yqq ansible
+  ansible-checks:
+    runs-on: ubuntu-latest
+    needs: fetch-secrets
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Install Python and create virtual environment
+        run: |
+          set -eEuo pipefail
+
+          sudo apt-get update -yqq && sudo apt-get install -yqq python3-venv
+
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install ansible ansible-core ansible-lint
+
+      - name: Run Ansible Lint
+        run: |
+          set -eEuo pipefail
+
+          source .venv/bin/activate
+          ansible --version
+          ansible-lint playbook.yml
 
       - name: Execute Ansible playbook
-        run: ansible-playbook playbook.yml -v --extra-vars "beta_secret=${BETA}"
-
-      - name: Print the secret (for debugging)
         run: |
-          echo "The secret is: $(echo $BETA | base64)"
+          set -eEuo pipefail
+
+          source .venv/bin/activate
+          ansible-playbook playbook.yml -v --extra-vars "beta_secret=${BETA}"
