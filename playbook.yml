@@ -3,5 +3,5 @@
   hosts: localhost
   tasks:
     - name: Print the secret
-      debug:
+      ansible.builtin.debug:
         msg: "The secret value is {{ beta_secret }}"
